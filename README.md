@@ -69,6 +69,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - **Performance**: Optimized for real-time updates and smooth interactions
 
 ## 📁 Project Structure
+![Alt text](/images/1.png)
 
 ```
 bollinger-bands-app/
@@ -195,3 +196,4 @@ For questions or issues related to this implementation:
 ---
 
 **Assignment completed with full feature requirements and professional code quality standards.**
+        
