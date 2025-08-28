@@ -1,10 +1,6 @@
-// components/Chart.tsx
-
 "use client";
-
 import React, { useEffect, useRef } from "react";
-import { init, dispose } from "klinecharts";
-import type { Chart } from "klinecharts";
+import { init, dispose, type Chart, LineType, CandleType } from "klinecharts";
 import {
   OHLCVData,
   BollingerBandsOptions,
@@ -32,25 +28,24 @@ const ChartComponent: React.FC<ChartProps> = ({
   // Initialize chart
   useEffect(() => {
     if (chartRef.current && !chartInstance.current) {
-      // Create the chart instance
       chartInstance.current = init(chartRef.current);
 
-      // Set dark theme styles
-      chartInstance.current.setStyles({
+      // ✅ Dark theme styles with correct typings
+      chartInstance.current?.setStyles({
         grid: {
           horizontal: {
             color: "#393939",
             size: 1,
-            style: "dash",
+            style: LineType.Dashed,
           },
           vertical: {
             color: "#393939",
             size: 1,
-            style: "dash",
+            style: LineType.Dashed,
           },
         },
         candle: {
-          type: "candle_solid",
+          type: CandleType.CandleSolid,
           bar: {
             upColor: "#26A69A",
             downColor: "#EF5350",
@@ -67,42 +62,33 @@ const ChartComponent: React.FC<ChartProps> = ({
         },
         crosshair: {
           horizontal: {
-            color: "#9B9B9B",
-            size: 1,
-            style: "dash",
+            line: {
+              color: "#9B9B9B",
+              size: 1,
+              style: LineType.Dashed,
+            },
           },
           vertical: {
-            color: "#9B9B9B",
-            size: 1,
-            style: "dash",
+            line: {
+              color: "#9B9B9B",
+              size: 1,
+              style: LineType.Dashed,
+            },
           },
         },
         yAxis: {
-          axisLine: {
-            color: "#888888",
-          },
-          tickText: {
-            color: "#D9D9D9",
-          },
-          tickLine: {
-            color: "#888888",
-          },
+          axisLine: { color: "#888888" },
+          tickText: { color: "#D9D9D9" },
+          tickLine: { color: "#888888" },
         },
         xAxis: {
-          axisLine: {
-            color: "#888888",
-          },
-          tickText: {
-            color: "#D9D9D9",
-          },
-          tickLine: {
-            color: "#888888",
-          },
+          axisLine: { color: "#888888" },
+          tickText: { color: "#D9D9D9" },
+          tickLine: { color: "#888888" },
         },
       });
     }
 
-    // Cleanup on unmount
     return () => {
       if (chartInstance.current && chartRef.current) {
         dispose(chartRef.current);
@@ -116,7 +102,6 @@ const ChartComponent: React.FC<ChartProps> = ({
     if (!chartInstance.current || !data.length) return;
 
     try {
-      // Convert our OHLCV data to KLineCharts format
       const klineData = data.map((item) => ({
         timestamp: item.timestamp,
         open: item.open,
@@ -126,15 +111,11 @@ const ChartComponent: React.FC<ChartProps> = ({
         volume: item.volume,
       }));
 
-      // Update chart data
       chartInstance.current.applyNewData(klineData);
 
-      // Handle Bollinger Bands
       if (showBollinger) {
-        // Calculate Bollinger Bands
         const bollingerData = computeBollingerBands(data, bollingerOptions);
 
-        // Create custom Bollinger Bands technical indicator
         const bollingerIndicator = {
           name: "BOLL",
           shortName: "BOLL",
@@ -154,30 +135,30 @@ const ChartComponent: React.FC<ChartProps> = ({
                 size: bollingerStyle.upper.lineWidth,
                 style:
                   bollingerStyle.upper.lineStyle === "dashed"
-                    ? "dash"
-                    : "solid",
+                    ? LineType.Dashed
+                    : LineType.Solid,
               },
               {
                 color: bollingerStyle.basis.color,
                 size: bollingerStyle.basis.lineWidth,
                 style:
                   bollingerStyle.basis.lineStyle === "dashed"
-                    ? "dash"
-                    : "solid",
+                    ? LineType.Dashed
+                    : LineType.Solid,
               },
               {
                 color: bollingerStyle.lower.color,
                 size: bollingerStyle.lower.lineWidth,
                 style:
                   bollingerStyle.lower.lineStyle === "dashed"
-                    ? "dash"
-                    : "solid",
+                    ? LineType.Dashed
+                    : LineType.Solid,
               },
             ],
             areas: [
               {
-                start: 0, // upper line index
-                end: 2, // lower line index
+                start: 0,
+                end: 2,
                 color:
                   bollingerStyle.fill.color +
                   Math.floor(bollingerStyle.fill.opacity * 255)
@@ -191,9 +172,8 @@ const ChartComponent: React.FC<ChartProps> = ({
             { key: "mid", title: "MID: ", type: "line" },
             { key: "dn", title: "DN: ", type: "line" },
           ],
-          regeneratePlots: null,
-          calc: (dataList: any[], indicator: any) => {
-            return bollingerData.map((bb, index) => {
+          calc: () => {
+            return bollingerData.map((bb) => {
               if (
                 !bb ||
                 isNaN(bb.upper) ||
@@ -211,14 +191,10 @@ const ChartComponent: React.FC<ChartProps> = ({
           },
         };
 
-        // Remove existing indicator
-        chartInstance.current.removeIndicator("BOLL");
-
-        // Add new indicator
+        chartInstance.current.removeIndicator({name:"BOLL"});
         chartInstance.current.createIndicator(bollingerIndicator, true);
       } else {
-        // Remove Bollinger Bands if disabled
-        chartInstance.current.removeIndicator("BOLL");
+        chartInstance.current.removeIndicator({ name: "BOLL" });
       }
     } catch (error) {
       console.error("Error updating chart:", error);
